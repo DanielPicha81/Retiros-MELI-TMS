@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuadros Espejo</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-gap: 20px;
+            margin-top: 20px;
+        }
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            user-select: none;
+            position: relative;
+            padding: 10px;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+        .box.green {
+            background-color: green;
+        }
+        .box[contenteditable="true"] {
+            outline: none;
+        }
+        .time-container {
+            margin: 20px;
+            font-size: 24px;
+        }
+        .counter {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="time-container">
+        Hora: <span id="time">00:00</span>
+    </div>
+    <div class="container" id="boxes">
+        <!-- Los cuadros se generarán aquí con JavaScript -->
+    </div>
+    <script>
+        // Generar 30 cuadros
+        const container = document.getElementById('boxes');
+        const boxStates = JSON.parse(localStorage.getItem('boxStates')) || [];
+        for (let i = 1; i <= 30; i++) {
+            const box = document.createElement('div');
+            box.className = 'box';
+            box.innerHTML = `Cuadro ${i}<div class="counter">00:00</div>`;
+            container.appendChild(box);
+        }
+
+        // Medidor de tiempo
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime(); // Inicializar el tiempo inmediatamente
+
+        // Reflejar el estado desde localStorage
+        function reflectState() {
+            const boxes = document.querySelectorAll('.box');
+            boxStates.forEach((state, index) => {
+                if (state.isGreen) {
+                    boxes[index].classList.add('green');
+                }
+                boxes[index].childNodes[0].textContent = state.text;
+                boxes[index].querySelector('.counter').textContent = state.counter;
+            });
+        }
+
+        reflectState();
+        setInterval(reflectState, 1000); // Reflejar el estado cada segundo
+    </script>
+</body>
+</html>
